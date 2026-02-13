@@ -231,6 +231,20 @@
             <p class="muted">If memorial news or grief is hitting hard, here are external support options.</p>
             <ul id="grief-resource-list" class="list"></ul>
           </div>
+          <div class="card compact-card">
+            <h3>Notification digests</h3>
+            <p class="muted">Reduce notification fatigue with a daily or weekly summary.</p>
+            <div class="inline-form">
+              <select id="digest-frequency">
+                <option value="off">off</option>
+                <option value="daily">daily</option>
+                <option value="weekly">weekly</option>
+              </select>
+              <button id="digest-save-btn" type="button">Save digest setting</button>
+              <button id="digest-send-now-btn" class="ghost" type="button">Send digest now (demo)</button>
+            </div>
+            <p id="digest-status" class="muted"></p>
+          </div>
         </section>
 
         <section id="tab-profile" class="card tab-panel hidden">
@@ -249,6 +263,14 @@
               <option value="verified">verified</option>
               <option value="community_verified">community verified</option>
             </select>
+            <label>Text size
+              <select id="text-size-select">
+                <option value="normal">normal</option>
+                <option value="large">large</option>
+              </select>
+            </label>
+            <label class="checkbox-label"><input id="high-contrast-toggle" type="checkbox" /> High contrast</label>
+            <label class="checkbox-label"><input id="reduced-motion-toggle" type="checkbox" /> Reduced motion</label>
             <button id="profile-save-btn" type="button">Save profile</button>
             <button id="export-data-btn" class="ghost" type="button">Export my data</button>
             <button id="delete-account-btn" class="ghost danger" type="button">Delete account (30-day hold)</button>

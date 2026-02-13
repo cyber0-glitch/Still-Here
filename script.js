@@ -82,6 +82,9 @@ const dom = {
   verificationSelect: document.querySelector('#profile-verification'),
   allowCaregiverView: document.querySelector('#allow-caregiver-view'),
   themeSelect: document.querySelector('#theme-select'),
+  textSizeSelect: document.querySelector('#text-size-select'),
+  highContrastToggle: document.querySelector('#high-contrast-toggle'),
+  reducedMotionToggle: document.querySelector('#reduced-motion-toggle'),
   profileSaveBtn: document.querySelector('#profile-save-btn'),
   exportDataBtn: document.querySelector('#export-data-btn'),
   deleteAccountBtn: document.querySelector('#delete-account-btn'),
@@ -90,6 +93,10 @@ const dom = {
   installAppBtn: document.querySelector('#install-app-btn'),
   offlineIndicator: document.querySelector('#offline-indicator'),
   griefResourceList: document.querySelector('#grief-resource-list'),
+  digestFrequency: document.querySelector('#digest-frequency'),
+  digestSaveBtn: document.querySelector('#digest-save-btn'),
+  digestSendNowBtn: document.querySelector('#digest-send-now-btn'),
+  digestStatus: document.querySelector('#digest-status'),
   clearStateBtn: document.querySelector('#clear-state-btn'),
   memorialForm: document.querySelector('#memorial-form'),
   memorialPreference: document.querySelector('#memorial-preference'),
@@ -163,6 +170,8 @@ function defaultState() {
     careUpdates: [],
     safetyCheckins: [],
     theme: 'dark',
+    accessibility: { textSize: 'normal', highContrast: false, reducedMotion: false },
+    digestPreference: { frequency: 'off', lastSentAt: 0 },
     inactivityCheckinLog: [],
     activeTab: 'feed',
   };
@@ -182,7 +191,7 @@ function loadState() {
       deletedAt: user.deletedAt || null,
       hardDeleteAt: user.hardDeleteAt || null,
     }));
-    return { ...defaultState(), ...parsed, users, careUpdates: Array.isArray(parsed.careUpdates) ? parsed.careUpdates : [], safetyCheckins: Array.isArray(parsed.safetyCheckins) ? parsed.safetyCheckins : [], connectionRequests: Array.isArray(parsed.connectionRequests) ? parsed.connectionRequests : [], connections: Array.isArray(parsed.connections) ? parsed.connections : [], connectionActivity: Array.isArray(parsed.connectionActivity) ? parsed.connectionActivity : [], partners: Array.isArray(parsed.partners) ? parsed.partners : defaultState().partners, partnerOffers: Array.isArray(parsed.partnerOffers) ? parsed.partnerOffers : defaultState().partnerOffers, partnerBookings: Array.isArray(parsed.partnerBookings) ? parsed.partnerBookings : [], blockedPhrases: parsed.blockedPhrases?.length ? parsed.blockedPhrases : DEFAULT_BLOCKED_PHRASES, theme: parsed.theme === 'light' ? 'light' : 'dark', inactivityCheckinLog: Array.isArray(parsed.inactivityCheckinLog) ? parsed.inactivityCheckinLog : [] };
+    return { ...defaultState(), ...parsed, users, careUpdates: Array.isArray(parsed.careUpdates) ? parsed.careUpdates : [], safetyCheckins: Array.isArray(parsed.safetyCheckins) ? parsed.safetyCheckins : [], connectionRequests: Array.isArray(parsed.connectionRequests) ? parsed.connectionRequests : [], connections: Array.isArray(parsed.connections) ? parsed.connections : [], connectionActivity: Array.isArray(parsed.connectionActivity) ? parsed.connectionActivity : [], partners: Array.isArray(parsed.partners) ? parsed.partners : defaultState().partners, partnerOffers: Array.isArray(parsed.partnerOffers) ? parsed.partnerOffers : defaultState().partnerOffers, partnerBookings: Array.isArray(parsed.partnerBookings) ? parsed.partnerBookings : [], blockedPhrases: parsed.blockedPhrases?.length ? parsed.blockedPhrases : DEFAULT_BLOCKED_PHRASES, theme: parsed.theme === 'light' ? 'light' : 'dark', inactivityCheckinLog: Array.isArray(parsed.inactivityCheckinLog) ? parsed.inactivityCheckinLog : [], accessibility: { textSize: parsed.accessibility?.textSize === 'large' ? 'large' : 'normal', highContrast: !!parsed.accessibility?.highContrast, reducedMotion: !!parsed.accessibility?.reducedMotion }, digestPreference: { frequency: ['off','daily','weekly'].includes(parsed.digestPreference?.frequency) ? parsed.digestPreference.frequency : 'off', lastSentAt: Number(parsed.digestPreference?.lastSentAt) || 0 } };
   } catch {
     return defaultState();
   }
@@ -194,6 +203,10 @@ function currentUser() { return userById(state.currentUserId); }
 
 function applyTheme() {
   document.body.classList.toggle('light-mode', state.theme === 'light');
+  const prefs = state.accessibility || { textSize: 'normal', highContrast: false, reducedMotion: false };
+  document.body.classList.toggle('large-text', prefs.textSize === 'large');
+  document.body.classList.toggle('high-contrast', !!prefs.highContrast);
+  document.body.classList.toggle('reduced-motion', !!prefs.reducedMotion);
 }
 
 function updateOfflineIndicator() {
@@ -248,6 +261,35 @@ function renderGriefResources() {
     li.append(link);
     dom.griefResourceList.append(li);
   });
+}
+
+
+function maybeSendDigestNotification(force = false) {
+  const me = currentUser();
+  if (!me) return;
+  const pref = state.digestPreference || { frequency: 'off', lastSentAt: 0 };
+  if (pref.frequency === 'off' && !force) {
+    dom.digestStatus.textContent = 'Digest is off.';
+    return;
+  }
+  const now = Date.now();
+  const interval = pref.frequency === 'weekly' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+  if (!force && pref.lastSentAt && (now - pref.lastSentAt) < interval) {
+    dom.digestStatus.textContent = `Next ${pref.frequency} digest will be sent automatically.`;
+    return;
+  }
+
+  const myNotifs = state.notifications.filter((n) => n.userId === me.id).slice(0, 20);
+  const summary = [
+    `Digest summary (${pref.frequency === 'off' ? 'manual' : pref.frequency}):`,
+    `- Notifications in queue: ${myNotifs.length}`,
+    `- Pending responses: ${state.responses.filter((r) => r.status === 'pending' && state.moments.some((m) => m.id === r.momentId && m.userId === me.id)).length}`,
+    `- Active events joined: ${state.events.filter((event) => event.status === 'active' && (event.attendeeIds || []).includes(me.id)).length}`,
+  ].join(' ');
+
+  notify(me.id, summary);
+  state.digestPreference.lastSentAt = now;
+  dom.digestStatus.textContent = `Digest sent at ${new Date(now).toLocaleString()}.`;
 }
 
 function applyPendingAccountDeletion() {
@@ -1100,6 +1142,10 @@ function renderNotifications() {
   list.forEach((n) => {
     const li = document.createElement('li'); li.className = 'item'; li.textContent = n.text; dom.notificationList.append(li);
   });
+  dom.digestFrequency.value = state.digestPreference?.frequency || 'off';
+  dom.digestStatus.textContent = state.digestPreference?.lastSentAt
+    ? `Last digest sent: ${new Date(state.digestPreference.lastSentAt).toLocaleString()}`
+    : 'No digests sent yet.';
 }
 
 
@@ -1215,6 +1261,9 @@ function renderProfile() {
   dom.verificationSelect.value = me.verificationStatus || 'basic';
   dom.allowCaregiverView.checked = !!me.allowCaregiverView;
   dom.themeSelect.value = state.theme || 'dark';
+  dom.textSizeSelect.value = state.accessibility?.textSize || 'normal';
+  dom.highContrastToggle.checked = !!state.accessibility?.highContrast;
+  dom.reducedMotionToggle.checked = !!state.accessibility?.reducedMotion;
   const isSoftDeleted = !!me.isSoftDeleted;
   dom.cancelDeletionBtn.classList.toggle('hidden', !isSoftDeleted);
   dom.accountStatus.textContent = isSoftDeleted
@@ -1617,6 +1666,7 @@ function renderAll() {
   maybeSendEventReminders();
   maybeEscalateSafetyCheckins();
   maybeSendInactivityCheckins();
+  maybeSendDigestNotification();
   renderMoments();
   renderEvents();
   renderResponses();
@@ -2091,12 +2141,33 @@ dom.profileSaveBtn.addEventListener('click', () => {
   me.verificationStatus = dom.verificationSelect.value;
   me.allowCaregiverView = dom.allowCaregiverView.checked;
   state.theme = dom.themeSelect.value === 'light' ? 'light' : 'dark';
+  state.accessibility = {
+    textSize: dom.textSizeSelect.value === 'large' ? 'large' : 'normal',
+    highContrast: dom.highContrastToggle.checked,
+    reducedMotion: dom.reducedMotionToggle.checked,
+  };
   notify(me.id, `Profile updated: ${verificationBadge(me.verificationStatus)} verification, caregiver view ${me.allowCaregiverView ? 'on' : 'off'}, theme ${state.theme}.`);
   saveState();
   renderAll();
 });
 
 
+
+dom.digestSaveBtn.addEventListener('click', () => {
+  state.digestPreference = state.digestPreference || { frequency: 'off', lastSentAt: 0 };
+  state.digestPreference.frequency = dom.digestFrequency.value;
+  notify(currentUser().id, `Digest preference updated: ${state.digestPreference.frequency}.`);
+  saveState();
+  renderNotifications();
+  renderGriefResources();
+});
+
+dom.digestSendNowBtn.addEventListener('click', () => {
+  maybeSendDigestNotification(true);
+  saveState();
+  renderNotifications();
+  renderGriefResources();
+});
 
 dom.exportDataBtn.addEventListener('click', () => {
   exportCurrentUserData();

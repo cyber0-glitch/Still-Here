@@ -86,3 +86,8 @@ body.light-mode .bubble.out { background: #c7d9f6; }
 a { color: #9fc1ff; }
 body.light-mode a { color: #2a4f8f; }
 .topbar .inline-form { align-items: center; }
+
+body.large-text { font-size: 18px; }
+body.high-contrast { --bg: #000000; --card: #0a0a0a; --line: #ffffff; --text: #ffffff; --muted: #d9d9d9; }
+body.high-contrast .pill { border-color: #ffffff; color: #ffffff; }
+body.reduced-motion * { animation: none !important; transition: none !important; }
