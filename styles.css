@@ -1,0 +1,88 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --bg: #131722;
+  --card: #1a2030;
+  --line: #3a4359;
+  --text: #f4f6fb;
+  --muted: #bfc8dd;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(circle at top right, #3a2440, var(--bg) 42%); color: var(--text); }
+.topbar { padding: 1rem; border-bottom: 1px solid var(--line); background: rgba(19,23,34,.9); position: sticky; top: 0; display: flex; justify-content: space-between; gap: .8rem; align-items: center; }
+.topbar h1, .topbar p { margin: 0; }
+.topbar p { color: var(--muted); margin-top: .2rem; }
+.app-shell { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.card { background: rgba(26,32,48,.95); border: 1px solid var(--line); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+.hidden { display: none !important; }
+.form-grid { display: grid; gap: .75rem; }
+.form-grid.compact { margin-bottom: .75rem; }
+label { display: grid; gap: .35rem; color: #d5ddf2; }
+input, select, textarea, button { font: inherit; }
+input, select, textarea { background: #121624; color: var(--text); border: 1px solid #4a5369; border-radius: 10px; padding: .58rem .65rem; }
+button { border: 1px solid transparent; border-radius: 999px; padding: .55rem .9rem; font-weight: 700; background: #e9edf8; color: #11172a; cursor: pointer; }
+button.ghost { background: transparent; color: var(--text); border-color: #505b76; }
+.tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .8rem; }
+.tabs button { background: transparent; border-color: #505b76; color: var(--text); }
+.tabs button.active { background: #e9edf8; color: #11172a; }
+.list { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
+.item { border: 1px solid #434c62; border-radius: 10px; padding: .65rem; background: #121726; }
+.item .description { margin: .45rem 0; color: var(--muted); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.pill { font-size: .77rem; border: 1px solid #49536d; border-radius: 999px; padding: .14rem .5rem; color: #ccd4ec; }
+.muted { color: var(--muted); }
+.inline-filter { margin: .4rem 0 .8rem; max-width: 240px; }
+.split { display: grid; gap: .8rem; }
+.thread { border: 1px solid #434c62; border-radius: 10px; min-height: 180px; padding: .55rem; display: grid; gap: .4rem; margin-bottom: .5rem; }
+.bubble { margin: 0; padding: .35rem .55rem; border-radius: 9px; max-width: 85%; }
+.bubble.in { background: #2a3145; }
+.bubble.out { margin-left: auto; background: #384a74; }
+.inline-form { display: flex; gap: .45rem; flex-wrap: wrap; }
+.inline-form input, .inline-form select { flex: 1 1 180px; }
+.profile { border: 1px solid #434c62; border-radius: 10px; padding: .6rem; margin-bottom: .7rem; }
+
+@media (min-width: 960px) {
+  .split { grid-template-columns: 1fr 1.6fr; }
+}
+
+.thread.empty { color: var(--muted); }
+.active-item { border-color: #8ea1d9; }
+
+.stat-card { border: 1px solid #434c62; border-radius: 10px; padding: .6rem; background: #121726; }
+.stat-card p { margin: .1rem 0; }
+.stat-card .value { font-size: 1.25rem; font-weight: 700; }
+
+.checkbox-label { display: inline-flex; align-items: center; gap: .45rem; color: var(--muted); }
+.checkbox-label input { width: 1rem; height: 1rem; }
+.bubble { display: grid; gap: .35rem; }
+.bubble-text { margin: 0; }
+.chat-image { width: min(220px, 100%); border-radius: 8px; border: 1px solid #49536d; }
+#message-image { max-width: 220px; }
+#message-attachment-status { min-height: 1.1rem; margin: .25rem 0; }
+
+button.danger { border-color: #9b4a4a; color: #ffd9d9; }
+
+body.light-mode {
+  --bg: #f1f4fb;
+  --card: #ffffff;
+  --line: #c7d1e0;
+  --text: #162033;
+  --muted: #4e5d79;
+  background: radial-gradient(circle at top right, #d8e1f4, var(--bg) 42%);
+}
+body.light-mode input,
+body.light-mode select,
+body.light-mode textarea { background: #ffffff; color: #162033; border-color: #aebbd2; }
+body.light-mode .item,
+body.light-mode .stat-card,
+body.light-mode .profile,
+body.light-mode .thread { background: #f8faff; border-color: #c5d1e4; }
+body.light-mode .tabs button,
+body.light-mode button.ghost { color: #1f2f4b; border-color: #8ea3c5; }
+body.light-mode .bubble.in { background: #dde6f4; }
+body.light-mode .bubble.out { background: #c7d9f6; }
+
+.compact-card { margin-top: .8rem; padding: .75rem; }
+a { color: #9fc1ff; }
+body.light-mode a { color: #2a4f8f; }
+.topbar .inline-form { align-items: center; }

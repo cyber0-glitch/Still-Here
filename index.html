@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Still Here — no pity. just time." />
+    <meta name="theme-color" content="#131722" />
+    <title>Still Here — MVP Simulator</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Still Here</h1>
+        <p>No pity. Just time.</p>
+      </div>
+      <div class="inline-form">
+        <span id="offline-indicator" class="pill hidden">offline mode</span>
+        <button id="install-app-btn" class="ghost" type="button">Install app</button>
+        <button id="clear-state-btn" class="ghost">Reset demo data</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section id="auth-view" class="card view" aria-labelledby="auth-title">
+        <h2 id="auth-title">Start in 2 minutes</h2>
+        <p>Tell people who you are. Not your diagnosis. You.</p>
+        <p id="auth-status" class="muted"></p>
+        <form id="auth-form" class="form-grid">
+          <label>Display name <input id="auth-name" required maxlength="48" /></label>
+          <label>Email <input id="auth-email" type="email" required /></label>
+          <button type="submit">Continue</button>
+        </form>
+      </section>
+
+      <section id="onboarding-view" class="card view hidden" aria-labelledby="onboard-title">
+        <h2 id="onboard-title">Onboarding</h2>
+        <p>Everything below is optional. Keep it honest and short.</p>
+        <form id="onboarding-form" class="form-grid">
+          <label>I have no patience for...<textarea id="prompt-no-patience" rows="2" maxlength="180"></textarea></label>
+          <label>I want company for...<textarea id="prompt-company" rows="2" maxlength="180"></textarea></label>
+          <label>Today my body can handle...<textarea id="prompt-body" rows="2" maxlength="180"></textarea></label>
+          <label>Before I go, I want to...<textarea id="prompt-before" rows="2" maxlength="180"></textarea></label>
+          <button type="submit">Finish onboarding</button>
+        </form>
+      </section>
+
+      <section id="app-view" class="hidden">
+        <nav class="tabs" aria-label="App navigation">
+          <button data-tab="feed" class="active">Feed</button>
+          <button data-tab="events">Events</button>
+          <button data-tab="partners">Partners</button>
+          <button data-tab="connections">Connections</button>
+          <button data-tab="care">Care circle</button>
+          <button data-tab="responses">Responses</button>
+          <button data-tab="messages">Messages</button>
+          <button data-tab="notifications">Notifications</button>
+          <button data-tab="profile">Profile</button>
+          <button data-tab="memorial">Memorial</button>
+          <button data-tab="safety">Safety</button>
+          <button data-tab="admin">Admin</button>
+        </nav>
+
+        <section id="tab-feed" class="card tab-panel">
+          <h2>Moment feed</h2>
+          <p class="muted">Newest first. No engagement tricks. No hidden posts.</p>
+          <form id="moment-form" class="form-grid compact">
+            <label>Title<input id="moment-title" required maxlength="90" placeholder="Coffee, no small talk" /></label>
+            <label>Category
+              <select id="moment-category">
+                <option value="talk">Talk</option><option value="food">Food</option><option value="nature">Nature</option>
+                <option value="adventure">Adventure</option><option value="quiet">Quiet</option><option value="virtual">Virtual</option><option value="other">Other</option>
+              </select>
+            </label>
+            <label>Energy
+              <select id="moment-energy"><option>low</option><option>moderate</option><option>high</option><option>any</option></select>
+            </label>
+            <label>Details<textarea id="moment-description" rows="2" maxlength="240"></textarea></label>
+            <button type="submit">Post moment</button>
+          </form>
+          <label class="inline-filter">Category filter
+            <select id="feed-filter"><option value="all">all</option><option>talk</option><option>food</option><option>nature</option><option>adventure</option><option>quiet</option><option>virtual</option><option>other</option></select>
+          </label>
+          <ul id="moment-list" class="list"></ul>
+        </section>
+
+
+        <section id="tab-partners" class="card tab-panel hidden">
+          <h2>Experience partners</h2>
+          <p class="muted">Vetted businesses can offer low-pressure experiences tailored for real energy limits.</p>
+          <label class="inline-filter">Offer filter
+            <select id="partner-offer-filter">
+              <option value="all">all offers</option>
+              <option value="in_person">in person</option>
+              <option value="virtual">virtual</option>
+              <option value="low">low energy friendly</option>
+            </select>
+          </label>
+          <ul id="partner-offer-list" class="list"></ul>
+
+          <h3>Request an offer</h3>
+          <form id="partner-booking-form" class="inline-form">
+            <input id="partner-booking-offer-id" placeholder="Offer ID (from list)" required maxlength="36" />
+            <input id="partner-booking-date" type="datetime-local" required />
+            <input id="partner-booking-note" placeholder="Access needs or constraints" maxlength="180" />
+            <button type="submit">Send request</button>
+          </form>
+          <h3>My partner requests</h3>
+          <ul id="partner-booking-list" class="list"></ul>
+        </section>
+
+
+        <section id="tab-connections" class="card tab-panel hidden">
+          <h2>Connections</h2>
+          <p class="muted">Find people with compatible energy and intent. Send direct connection requests when a moment isn't the right format.</p>
+          <form id="connection-request-form" class="inline-form">
+            <input id="connection-target" placeholder="User name" required maxlength="60" />
+            <input id="connection-note" placeholder="Short note (optional)" maxlength="180" />
+            <button type="submit">Send request</button>
+          </form>
+          <label class="inline-filter">Suggestion filter
+            <select id="connection-filter">
+              <option value="all">all</option>
+              <option value="compatible_energy">compatible energy</option>
+              <option value="verified">verified only</option>
+            </select>
+          </label>
+          <h3>Suggested people</h3>
+          <ul id="connection-suggestion-list" class="list"></ul>
+          <h3>Incoming requests</h3>
+          <ul id="incoming-connection-list" class="list"></ul>
+          <h3>Outgoing requests</h3>
+          <ul id="outgoing-connection-list" class="list"></ul>
+          <h3>Your connections</h3>
+          <ul id="connection-list" class="list"></ul>
+        </section>
+
+        <section id="tab-responses" class="card tab-panel hidden">
+          <h2>Responses to your moments</h2>
+          <ul id="response-list" class="list"></ul>
+        </section>
+
+        <section id="tab-care" class="card tab-panel hidden">
+          <h2>Care circle</h2>
+          <p class="muted">Add people you trust who can see updates and help coordinate on hard days.</p>
+          <form id="caregiver-form" class="inline-form">
+            <input id="caregiver-name" placeholder="Caregiver name" required maxlength="60" />
+            <input id="caregiver-relationship" placeholder="Relationship (sister, partner, friend)" maxlength="80" />
+            <input id="caregiver-contact" placeholder="Contact (email or phone)" required maxlength="120" />
+            <button type="submit">Add caregiver</button>
+          </form>
+          <ul id="caregiver-list" class="list"></ul>
+          <h3>Shared snapshot</h3>
+          <ul id="caregiver-snapshot" class="list"></ul>
+
+          <h3>Care updates</h3>
+          <p class="muted">Post quick updates so your care circle knows what kind of help you need today.</p>
+          <form id="care-update-form" class="inline-form">
+            <select id="care-update-urgency">
+              <option value="low">low urgency</option>
+              <option value="medium">medium urgency</option>
+              <option value="high">high urgency</option>
+            </select>
+            <input id="care-update-needed-by" type="datetime-local" />
+            <input id="care-update-text" placeholder="Example: Need a ride to treatment tomorrow morning." required maxlength="220" />
+            <button type="submit">Post update</button>
+          </form>
+          <label class="inline-filter">Update filter
+            <select id="care-update-filter">
+              <option value="all">all updates</option>
+              <option value="open">open only</option>
+              <option value="handled">handled only</option>
+              <option value="overdue">overdue only</option>
+            </select>
+          </label>
+          <ul id="care-update-list" class="list"></ul>
+        </section>
+
+        <section id="tab-events" class="card tab-panel hidden">
+          <h2>Group events</h2>
+          <p class="muted">Small, realistic plans. Show up if your body says yes that day.</p>
+          <form id="event-form" class="form-grid compact">
+            <label>Event title<input id="event-title" required maxlength="90" placeholder="Park loop and iced coffee" /></label>
+            <label>Event type
+              <select id="event-type"><option value="in_person">In person</option><option value="virtual">Virtual</option></select>
+            </label>
+            <label>Date/time<input id="event-date" type="datetime-local" required /></label>
+            <label>Capacity<input id="event-capacity" type="number" min="2" max="20" value="5" /></label>
+            <label>Details<textarea id="event-description" rows="2" maxlength="200"></textarea></label>
+            <button type="submit">Create event</button>
+          </form>
+          <div class="split">
+            <ul id="event-list" class="list"></ul>
+            <div>
+              <div id="event-detail" class="thread"></div>
+              <form id="event-message-form" class="inline-form">
+                <input id="event-message-input" placeholder="Event chat: logistics, timing, and updates." />
+                <button type="submit">Send</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-messages" class="card tab-panel hidden">
+          <h2>Messages</h2>
+          <div class="split">
+            <ul id="conversation-list" class="list"></ul>
+            <div>
+              <div id="thread" class="thread"></div>
+              <p id="message-attachment-status" class="muted"></p>
+              <form id="message-form" class="inline-form">
+                <input id="message-input" placeholder="Say whatever you want. There's no wrong way to start." />
+                <input id="message-image" type="file" accept="image/*" />
+                <button type="submit">Send</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-notifications" class="card tab-panel hidden">
+          <h2>Notifications</h2>
+          <div class="inline-form quick-mute">
+            <button id="mute-1d-btn" type="button" class="ghost">Take a break: 1 day</button>
+            <button id="mute-3d-btn" type="button" class="ghost">3 days</button>
+            <button id="mute-7d-btn" type="button" class="ghost">1 week</button>
+          </div>
+          <ul id="notification-list" class="list"></ul>
+          <div class="card compact-card">
+            <h3>Talk to someone</h3>
+            <p class="muted">If memorial news or grief is hitting hard, here are external support options.</p>
+            <ul id="grief-resource-list" class="list"></ul>
+          </div>
+        </section>
+
+        <section id="tab-profile" class="card tab-panel hidden">
+          <h2>Your profile</h2>
+          <div id="profile-card" class="profile"></div>
+          <div class="inline-form">
+            <label class="checkbox-label"><input id="allow-caregiver-view" type="checkbox" /> Allow caregiver updates</label>
+            <label>Theme
+              <select id="theme-select">
+                <option value="dark">dark</option>
+                <option value="light">light</option>
+              </select>
+            </label>
+            <select id="profile-verification">
+              <option value="basic">basic</option>
+              <option value="verified">verified</option>
+              <option value="community_verified">community verified</option>
+            </select>
+            <button id="profile-save-btn" type="button">Save profile</button>
+            <button id="export-data-btn" class="ghost" type="button">Export my data</button>
+            <button id="delete-account-btn" class="ghost danger" type="button">Delete account (30-day hold)</button>
+            <button id="cancel-deletion-btn" class="ghost hidden" type="button">Cancel deletion</button>
+            <button id="logout-btn" class="ghost" type="button">Log out</button>
+          </div>
+          <p id="account-status" class="muted"></p>
+        </section>
+
+        <section id="tab-memorial" class="card tab-panel hidden">
+          <h2>Memorial preferences</h2>
+          <p class="muted">This is about what happens to your profile when you're no longer here. You can change this anytime.</p>
+          <form id="memorial-form" class="form-grid">
+            <label>When I'm gone, I want my profile to
+              <select id="memorial-preference">
+                <option value="memorial">Become a memorial</option>
+                <option value="disappear">Disappear</option>
+                <option value="undecided">I haven't decided yet</option>
+              </select>
+            </label>
+            <label>Memorial message
+              <textarea id="memorial-message" rows="3" maxlength="250" placeholder="Want to leave a message for people you've met here? Write it here."></textarea>
+            </label>
+            <label>Designated person name<input id="designated-name" maxlength="80" /></label>
+            <label>Designated person contact<input id="designated-contact" maxlength="120" placeholder="email or phone" /></label>
+            <button type="submit">Save memorial preferences</button>
+          </form>
+
+          <div class="inline-form">
+            <button id="activate-memorial-btn" type="button" class="ghost">Activate memorial status (demo)</button>
+            <button id="add-memory-btn" type="button">Leave yourself a memory (demo)</button>
+          </div>
+          <div id="memorial-preview" class="profile"></div>
+          <ul id="memory-list" class="list"></ul>
+
+          <h3>Memorial wall</h3>
+          <p class="muted">Leave a memory for someone whose profile is now memorialized.</p>
+          <form id="memorial-wall-form" class="inline-form">
+            <input id="memorial-wall-target" placeholder="Memorialized user name" required />
+            <input id="memorial-wall-message" placeholder="Memory message" required maxlength="180" />
+            <button type="submit">Leave memory</button>
+          </form>
+          <label class="inline-filter">View memories for
+            <select id="memorial-wall-view"><option value="all">all memorials</option></select>
+          </label>
+          <ul id="memorial-wall-list" class="list"></ul>
+          <ul id="memorial-wall-memory-list" class="list"></ul>
+        </section>
+
+        <section id="tab-safety" class="card tab-panel hidden">
+          <h2>Safety</h2>
+          <ul>
+            <li>Still Here doesn't allow financial requests between users. This protects everyone.</li>
+            <li>If someone makes you uncomfortable, block instantly. No questions asked.</li>
+          </ul>
+          <form id="report-form" class="inline-form">
+            <input id="report-target" placeholder="User name to report" required />
+            <input id="report-reason" placeholder="Reason" required />
+            <button type="submit">File report</button>
+          </form>
+          <form id="block-form" class="inline-form">
+            <input id="block-target" placeholder="User name to block" required />
+            <button type="submit" class="ghost">Block user</button>
+          </form>
+
+          <h3>Meetup safety check-in</h3>
+          <p class="muted">Going to meet someone from the app? Start a timer and add a trusted contact.</p>
+          <form id="safety-checkin-form" class="inline-form">
+            <input id="safety-contact" placeholder="Trusted contact (email or phone)" required maxlength="120" />
+            <input id="safety-location" placeholder="Meetup location (optional)" maxlength="120" />
+            <input id="safety-note" placeholder="Plan note (optional)" maxlength="160" />
+            <select id="safety-timer">
+              <option value="30">30 minutes</option>
+              <option value="60" selected>60 minutes</option>
+              <option value="120">2 hours</option>
+            </select>
+            <button type="submit">Start check-in timer</button>
+            <button id="safety-checkin-now-btn" type="button" class="ghost">I'm safe</button>
+          </form>
+          <ul id="safety-checkin-list" class="list"></ul>
+
+          <p id="safety-status" class="muted"></p>
+        </section>
+
+        <section id="tab-admin" class="card tab-panel hidden">
+          <h2>Admin queue <span class="pill" id="queue-count">0</span></h2>
+          <p class="muted">MVP moderation queue + blocked phrase controls.</p>
+          <div id="admin-stats" class="split"></div>
+          <ul id="admin-report-list" class="list"></ul>
+          <h3>Memorial management</h3>
+          <ul id="admin-memorial-list" class="list"></ul>
+          <h3>Memorial memory moderation</h3>
+          <ul id="admin-memory-review-list" class="list"></ul>
+          <h3>Care updates queue</h3>
+          <ul id="admin-care-update-list" class="list"></ul>
+          <h3>Partner verification queue</h3>
+          <ul id="admin-partner-review-list" class="list"></ul>
+          <h3>Partner booking queue</h3>
+          <ul id="admin-partner-booking-list" class="list"></ul>
+          <h3>Blocked phrases</h3>
+          <form id="admin-phrase-form" class="inline-form">
+            <input id="admin-phrase-input" placeholder="Add phrase to auto-flag" />
+            <button type="submit">Add phrase</button>
+          </form>
+          <ul id="blocked-phrase-list" class="list"></ul>
+        </section>
+      </section>
+    </main>
+
+    <template id="moment-item-template">
+      <li class="item">
+        <div><strong class="title"></strong> <span class="pill category"></span> <span class="pill energy"></span></div>
+        <p class="description"></p>
+        <div class="row">
+          <span class="meta"></span>
+          <button class="ghost respond-btn">I'm in</button>
+        </div>
+      </li>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
