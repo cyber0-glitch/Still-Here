@@ -1,0 +1,17 @@
+{
+  "name": "Still Here",
+  "short_name": "StillHere",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#131722",
+  "theme_color": "#131722",
+  "description": "Still Here MVP simulator",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='48' fill='%23131722'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial,sans-serif' font-size='128' fill='%23e9edf8'%3ESH%3C/text%3E%3C/svg%3E",
+      "sizes": "256x256",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
