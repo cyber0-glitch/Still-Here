@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Still Here — no pity. just time." />
-    <meta name="theme-color" content="#131722" />
     <title>Still Here — MVP Simulator</title>
-    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -15,34 +13,13 @@
         <h1>Still Here</h1>
         <p>No pity. Just time.</p>
       </div>
-      <div class="inline-form">
-        <span id="offline-indicator" class="pill hidden">offline mode</span>
-        <button id="install-app-btn" class="ghost" type="button">Install app</button>
-        <button id="clear-state-btn" class="ghost">Reset demo data</button>
-      </div>
+      <button id="clear-state-btn" class="ghost">Reset demo data</button>
     </header>
 
     <main class="app-shell">
-      <section id="landing-view" class="card view" aria-labelledby="landing-title">
-        <h2 id="landing-title">Still Here, without the performance.</h2>
-        <p class="muted">No pity. No gamification. Just easier ways to ask for the exact company you want.</p>
-        <div class="split">
-          <div class="item">
-            <strong>Post moments quickly</strong>
-            <p class="muted">Say what you have energy for right now. People respond, you choose.</p>
-          </div>
-          <div class="item">
-            <strong>Safety by default</strong>
-            <p class="muted">Report/block, check-in timers, moderation queue, and clear boundaries.</p>
-          </div>
-        </div>
-        <button id="landing-start-btn" type="button">Start in 2 minutes</button>
-      </section>
-
       <section id="auth-view" class="card view" aria-labelledby="auth-title">
         <h2 id="auth-title">Start in 2 minutes</h2>
         <p>Tell people who you are. Not your diagnosis. You.</p>
-        <p id="auth-status" class="muted"></p>
         <form id="auth-form" class="form-grid">
           <label>Display name <input id="auth-name" required maxlength="48" /></label>
           <label>Email <input id="auth-email" type="email" required /></label>
@@ -53,58 +30,19 @@
       <section id="onboarding-view" class="card view hidden" aria-labelledby="onboard-title">
         <h2 id="onboard-title">Onboarding</h2>
         <p>Everything below is optional. Keep it honest and short.</p>
-        <p id="onboarding-progress" class="muted">Step 1 of 3</p>
-        <div class="inline-form">
-          <button id="onboarding-preset-low" type="button" class="ghost">Use low-energy preset</button>
-          <button id="onboarding-preset-social" type="button" class="ghost">Use social preset</button>
-          <button id="onboarding-clear-draft" type="button" class="ghost">Clear draft</button>
-        </div>
         <form id="onboarding-form" class="form-grid">
           <label>I have no patience for...<textarea id="prompt-no-patience" rows="2" maxlength="180"></textarea></label>
           <label>I want company for...<textarea id="prompt-company" rows="2" maxlength="180"></textarea></label>
           <label>Today my body can handle...<textarea id="prompt-body" rows="2" maxlength="180"></textarea></label>
           <label>Before I go, I want to...<textarea id="prompt-before" rows="2" maxlength="180"></textarea></label>
-
-          <h3>Connection preferences</h3>
-          <label>Typical energy baseline
-            <select id="onboard-energy-baseline">
-              <option value="low">low</option>
-              <option value="moderate">moderate</option>
-              <option value="high">high</option>
-              <option value="variable" selected>variable</option>
-            </select>
-          </label>
-          <label>Best time to connect
-            <select id="onboard-availability-window">
-              <option value="morning">morning</option>
-              <option value="afternoon">afternoon</option>
-              <option value="evening">evening</option>
-              <option value="late_night">late night</option>
-              <option value="flexible" selected>flexible</option>
-            </select>
-          </label>
-          <label>Conversation pace
-            <select id="onboard-communication-style">
-              <option value="quick_checkins">quick check-ins</option>
-              <option value="long_talks">long talks</option>
-              <option value="silent_company">silent company</option>
-              <option value="mixed" selected>mixed</option>
-            </select>
-          </label>
-          <label>Community code (optional)
-            <input id="onboard-community-code" maxlength="24" placeholder="example: NYC-QUIET-NIGHTS" />
-          </label>
           <button type="submit">Finish onboarding</button>
         </form>
-        <p id="onboarding-status" class="muted"></p>
       </section>
 
       <section id="app-view" class="hidden">
         <nav class="tabs" aria-label="App navigation">
           <button data-tab="feed" class="active">Feed</button>
           <button data-tab="events">Events</button>
-          <button data-tab="partners">Partners</button>
-          <button data-tab="connections">Connections</button>
           <button data-tab="care">Care circle</button>
           <button data-tab="responses">Responses</button>
           <button data-tab="messages">Messages</button>
@@ -113,7 +51,6 @@
           <button data-tab="memorial">Memorial</button>
           <button data-tab="safety">Safety</button>
           <button data-tab="admin">Admin</button>
-          <button data-tab="roadmap">Roadmap</button>
         </nav>
 
         <section id="tab-feed" class="card tab-panel">
@@ -139,57 +76,6 @@
           <ul id="moment-list" class="list"></ul>
         </section>
 
-
-        <section id="tab-partners" class="card tab-panel hidden">
-          <h2>Experience partners</h2>
-          <p class="muted">Vetted businesses can offer low-pressure experiences tailored for real energy limits.</p>
-          <label class="inline-filter">Offer filter
-            <select id="partner-offer-filter">
-              <option value="all">all offers</option>
-              <option value="in_person">in person</option>
-              <option value="virtual">virtual</option>
-              <option value="low">low energy friendly</option>
-            </select>
-          </label>
-          <ul id="partner-offer-list" class="list"></ul>
-
-          <h3>Request an offer</h3>
-          <form id="partner-booking-form" class="inline-form">
-            <input id="partner-booking-offer-id" placeholder="Offer ID (from list)" required maxlength="36" />
-            <input id="partner-booking-date" type="datetime-local" required />
-            <input id="partner-booking-note" placeholder="Access needs or constraints" maxlength="180" />
-            <button type="submit">Send request</button>
-          </form>
-          <h3>My partner requests</h3>
-          <ul id="partner-booking-list" class="list"></ul>
-        </section>
-
-
-        <section id="tab-connections" class="card tab-panel hidden">
-          <h2>Connections</h2>
-          <p class="muted">Find people with compatible energy and intent. Send direct connection requests when a moment isn't the right format.</p>
-          <form id="connection-request-form" class="inline-form">
-            <input id="connection-target" placeholder="User name" required maxlength="60" />
-            <input id="connection-note" placeholder="Short note (optional)" maxlength="180" />
-            <button type="submit">Send request</button>
-          </form>
-          <label class="inline-filter">Suggestion filter
-            <select id="connection-filter">
-              <option value="all">all</option>
-              <option value="compatible_energy">compatible energy</option>
-              <option value="verified">verified only</option>
-            </select>
-          </label>
-          <h3>Suggested people</h3>
-          <ul id="connection-suggestion-list" class="list"></ul>
-          <h3>Incoming requests</h3>
-          <ul id="incoming-connection-list" class="list"></ul>
-          <h3>Outgoing requests</h3>
-          <ul id="outgoing-connection-list" class="list"></ul>
-          <h3>Your connections</h3>
-          <ul id="connection-list" class="list"></ul>
-        </section>
-
         <section id="tab-responses" class="card tab-panel hidden">
           <h2>Responses to your moments</h2>
           <ul id="response-list" class="list"></ul>
@@ -207,28 +93,6 @@
           <ul id="caregiver-list" class="list"></ul>
           <h3>Shared snapshot</h3>
           <ul id="caregiver-snapshot" class="list"></ul>
-
-          <h3>Care updates</h3>
-          <p class="muted">Post quick updates so your care circle knows what kind of help you need today.</p>
-          <form id="care-update-form" class="inline-form">
-            <select id="care-update-urgency">
-              <option value="low">low urgency</option>
-              <option value="medium">medium urgency</option>
-              <option value="high">high urgency</option>
-            </select>
-            <input id="care-update-needed-by" type="datetime-local" />
-            <input id="care-update-text" placeholder="Example: Need a ride to treatment tomorrow morning." required maxlength="220" />
-            <button type="submit">Post update</button>
-          </form>
-          <label class="inline-filter">Update filter
-            <select id="care-update-filter">
-              <option value="all">all updates</option>
-              <option value="open">open only</option>
-              <option value="handled">handled only</option>
-              <option value="overdue">overdue only</option>
-            </select>
-          </label>
-          <ul id="care-update-list" class="list"></ul>
         </section>
 
         <section id="tab-events" class="card tab-panel hidden">
@@ -262,10 +126,8 @@
             <ul id="conversation-list" class="list"></ul>
             <div>
               <div id="thread" class="thread"></div>
-              <p id="message-attachment-status" class="muted"></p>
               <form id="message-form" class="inline-form">
                 <input id="message-input" placeholder="Say whatever you want. There's no wrong way to start." />
-                <input id="message-image" type="file" accept="image/*" />
                 <button type="submit">Send</button>
               </form>
             </div>
@@ -279,47 +141,7 @@
             <button id="mute-3d-btn" type="button" class="ghost">3 days</button>
             <button id="mute-7d-btn" type="button" class="ghost">1 week</button>
           </div>
-          <div class="card compact-card">
-            <h3>Notification preferences</h3>
-            <div class="inline-form">
-              <label>Delivery
-                <select id="notif-delivery-mode">
-                  <option value="in_app">in-app only</option>
-                  <option value="in_app_and_push">in-app + browser push</option>
-                </select>
-              </label>
-              <label>Quiet hours start
-                <input id="notif-quiet-start" type="time" value="22:00" />
-              </label>
-              <label>Quiet hours end
-                <input id="notif-quiet-end" type="time" value="07:00" />
-              </label>
-              <button id="notif-pref-save-btn" type="button">Save notification prefs</button>
-              <button id="notif-permission-btn" class="ghost" type="button">Enable browser notifications</button>
-              <button id="notif-mark-all-read-btn" class="ghost" type="button">Mark all read</button>
-            </div>
-            <p id="notif-pref-status" class="muted"></p>
-          </div>
           <ul id="notification-list" class="list"></ul>
-          <div class="card compact-card">
-            <h3>Talk to someone</h3>
-            <p class="muted">If memorial news or grief is hitting hard, here are external support options.</p>
-            <ul id="grief-resource-list" class="list"></ul>
-          </div>
-          <div class="card compact-card">
-            <h3>Notification digests</h3>
-            <p class="muted">Reduce notification fatigue with a daily or weekly summary.</p>
-            <div class="inline-form">
-              <select id="digest-frequency">
-                <option value="off">off</option>
-                <option value="daily">daily</option>
-                <option value="weekly">weekly</option>
-              </select>
-              <button id="digest-save-btn" type="button">Save digest setting</button>
-              <button id="digest-send-now-btn" class="ghost" type="button">Send digest now (demo)</button>
-            </div>
-            <p id="digest-status" class="muted"></p>
-          </div>
         </section>
 
         <section id="tab-profile" class="card tab-panel hidden">
@@ -327,45 +149,14 @@
           <div id="profile-card" class="profile"></div>
           <div class="inline-form">
             <label class="checkbox-label"><input id="allow-caregiver-view" type="checkbox" /> Allow caregiver updates</label>
-            <input id="community-code-request" placeholder="Request or join community code" maxlength="24" />
-            <button id="community-code-request-btn" class="ghost" type="button">Request code</button>
-            <label>Theme
-              <select id="theme-select">
-                <option value="dark">dark</option>
-                <option value="light">light</option>
-              </select>
-            </label>
-            <label>Text size
-              <select id="text-size-select">
-                <option value="normal">normal</option>
-                <option value="large">large</option>
-              </select>
-            </label>
-            <label class="checkbox-label"><input id="high-contrast-toggle" type="checkbox" /> High contrast</label>
-            <label class="checkbox-label"><input id="reduced-motion-toggle" type="checkbox" /> Reduced motion</label>
-            <button id="profile-save-btn" type="button">Save profile</button>
-            <button id="export-data-btn" class="ghost" type="button">Export my data</button>
-            <button id="delete-account-btn" class="ghost danger" type="button">Delete account (30-day hold)</button>
-            <button id="cancel-deletion-btn" class="ghost hidden" type="button">Cancel deletion</button>
+            <select id="profile-verification">
+              <option value="basic">basic</option>
+              <option value="verified">verified</option>
+              <option value="community_verified">community verified</option>
+            </select>
+            <button id="profile-save-btn" type="button">Save verification</button>
             <button id="logout-btn" class="ghost" type="button">Log out</button>
           </div>
-          <div class="card compact-card">
-            <h3>Verification workflow</h3>
-            <p class="muted">Current status: <span id="profile-verification-status">basic</span>. Submit a request and moderation will review it.</p>
-            <div class="inline-form">
-              <select id="verification-request-level">
-                <option value="verified">verified</option>
-                <option value="community_verified">community verified</option>
-              </select>
-              <input id="verification-request-note" maxlength="180" placeholder="Optional context for moderators" />
-              <button id="verification-request-btn" type="button">Submit verification request</button>
-              <button id="verification-request-cancel-btn" class="ghost" type="button">Cancel pending request</button>
-            </div>
-            <p id="verification-request-status" class="muted"></p>
-            <ul id="verification-history-list" class="list"></ul>
-          </div>
-          <p id="community-code-status" class="muted"></p>
-          <p id="account-status" class="muted"></p>
         </section>
 
         <section id="tab-memorial" class="card tab-panel hidden">
@@ -423,36 +214,6 @@
             <input id="block-target" placeholder="User name to block" required />
             <button type="submit" class="ghost">Block user</button>
           </form>
-
-          <h3>Meetup safety check-in</h3>
-          <p class="muted">Going to meet someone from the app? Start a timer and add a trusted contact.</p>
-          <form id="safety-checkin-form" class="inline-form">
-            <input id="safety-contact" placeholder="Trusted contact (email or phone)" required maxlength="120" />
-            <input id="safety-location" placeholder="Meetup location (optional)" maxlength="120" />
-            <input id="safety-note" placeholder="Plan note (optional)" maxlength="160" />
-            <select id="safety-timer">
-              <option value="30">30 minutes</option>
-              <option value="60" selected>60 minutes</option>
-              <option value="120">2 hours</option>
-            </select>
-            <button type="submit">Start check-in timer</button>
-            <button id="safety-checkin-now-btn" type="button" class="ghost">I'm safe</button>
-          </form>
-          <ul id="safety-checkin-list" class="list"></ul>
-
-          <h3>Incident drills</h3>
-          <p class="muted">Run readiness drills to stress-test moderation and response workflows.</p>
-          <form id="incident-drill-form" class="inline-form">
-            <select id="incident-drill-type">
-              <option value="report_surge">report surge</option>
-              <option value="platform_outage">platform outage</option>
-              <option value="memorial_abuse">memorial abuse wave</option>
-            </select>
-            <input id="incident-drill-note" maxlength="180" placeholder="Optional drill context" />
-            <button type="submit">Trigger drill</button>
-          </form>
-          <ul id="incident-drill-list" class="list"></ul>
-
           <p id="safety-status" class="muted"></p>
         </section>
 
@@ -460,146 +221,17 @@
           <h2>Admin queue <span class="pill" id="queue-count">0</span></h2>
           <p class="muted">MVP moderation queue + blocked phrase controls.</p>
           <div id="admin-stats" class="split"></div>
-          <div class="card compact-card">
-            <h3>Project progress report</h3>
-            <p class="muted">Live completion score for the MVP plan areas implemented in this simulator.</p>
-            <p id="admin-progress-report" class="muted"></p>
-          </div>
-          <h3>Moderation inbox</h3>
-          <div class="inline-form">
-            <select id="admin-inbox-filter">
-              <option value="all">all pending items</option>
-              <option value="report">reports</option>
-              <option value="memorial_memory">memorial memories</option>
-              <option value="care_update">care updates</option>
-              <option value="partner_review">partner reviews</option>
-              <option value="partner_booking">partner bookings</option>
-              <option value="community_code">community code requests</option>
-              <option value="verification_request">verification requests</option>
-            </select>
-            <input id="admin-inbox-search" placeholder="Search target, reason, code..." maxlength="80" />
-            <button id="admin-inbox-export-btn" class="ghost" type="button">Export moderation snapshot</button>
-          </div>
-          <ul id="admin-inbox-list" class="list"></ul>
           <ul id="admin-report-list" class="list"></ul>
           <h3>Memorial management</h3>
           <ul id="admin-memorial-list" class="list"></ul>
           <h3>Memorial memory moderation</h3>
           <ul id="admin-memory-review-list" class="list"></ul>
-          <h3>Inactivity review</h3>
-          <div class="inline-form">
-            <select id="admin-inactivity-filter">
-              <option value="all">all inactivity flags</option>
-              <option value="watch">watch (14+ days)</option>
-              <option value="critical">critical (90+ days)</option>
-              <option value="escalated">escalated</option>
-            </select>
-            <button id="admin-refresh-inactivity-btn" class="ghost" type="button">Refresh inactivity scan</button>
-          </div>
-          <ul id="admin-inactivity-list" class="list"></ul>
-          <h3>Care updates queue</h3>
-          <ul id="admin-care-update-list" class="list"></ul>
-          <h3>Partner verification queue</h3>
-          <ul id="admin-partner-review-list" class="list"></ul>
-          <h3>Partner booking queue</h3>
-          <ul id="admin-partner-booking-list" class="list"></ul>
-          <h3>Community code requests</h3>
-          <ul id="admin-code-request-list" class="list"></ul>
-          <h3>Verification requests</h3>
-          <ul id="admin-verification-review-list" class="list"></ul>
-          <h3>Community codes</h3>
-          <ul id="admin-community-code-list" class="list"></ul>
-          <h3>Launch readiness center</h3>
-          <p id="admin-launch-status" class="muted"></p>
-          <form id="risk-register-form" class="inline-form">
-            <input id="risk-register-title" placeholder="Risk title" maxlength="120" required />
-            <select id="risk-register-severity">
-              <option value="low">low</option>
-              <option value="medium">medium</option>
-              <option value="high">high</option>
-            </select>
-            <input id="risk-register-mitigation" placeholder="Mitigation step" maxlength="180" />
-            <button type="submit">Add risk</button>
-          </form>
-          <ul id="admin-risk-list" class="list"></ul>
-          <h3>Incident drill log</h3>
-          <ul id="admin-incident-list" class="list"></ul>
-
           <h3>Blocked phrases</h3>
           <form id="admin-phrase-form" class="inline-form">
             <input id="admin-phrase-input" placeholder="Add phrase to auto-flag" />
             <button type="submit">Add phrase</button>
           </form>
           <ul id="blocked-phrase-list" class="list"></ul>
-        </section>
-
-
-        <section id="tab-roadmap" class="card tab-panel hidden">
-          <h2>Development roadmap</h2>
-          <p class="muted">Track progress against the Still Here plan in large workstreams and run quick health checks.</p>
-          <div class="inline-form">
-            <select id="roadmap-phase-filter">
-              <option value="all">all phases</option>
-              <option value="foundation">foundation</option>
-              <option value="core connection">core connection</option>
-              <option value="trust & safety">trust & safety</option>
-              <option value="grief-aware design">grief-aware design</option>
-              <option value="ecosystem">ecosystem</option>
-              <option value="production readiness">production readiness</option>
-            </select>
-            <button id="roadmap-run-health-btn" type="button">Run health check suite</button>
-            <button id="roadmap-advance-btn" type="button">Advance next milestone</button>
-            <button id="roadmap-export-btn" class="ghost" type="button">Export roadmap report</button>
-            <button id="roadmap-reset-btn" class="ghost" type="button">Reset roadmap statuses</button>
-          </div>
-          <p id="roadmap-summary" class="muted"></p>
-          <p id="roadmap-health-status" class="muted"></p>
-          <p id="roadmap-readiness" class="muted"></p>
-          <h3>Phase progress</h3>
-          <ul id="roadmap-phase-list" class="list"></ul>
-          <h3>Milestones</h3>
-          <ul id="roadmap-milestone-list" class="list"></ul>
-          <h3>Recent completion log</h3>
-          <ul id="roadmap-log-list" class="list"></ul>
-
-          <h3>Delivery backlog (what's left)</h3>
-          <p id="roadmap-left-summary" class="muted"></p>
-          <ul id="roadmap-backlog-list" class="list"></ul>
-          <h3>Execution program board</h3>
-          <p id="execution-summary" class="muted"></p>
-          <div class="inline-form">
-            <input id="execution-sprint-name" maxlength="80" placeholder="Sprint name (e.g. Production hardening sprint)" />
-            <input id="execution-sprint-capacity" type="number" min="1" max="20" value="6" />
-            <button id="execution-create-sprint-btn" type="button">Create sprint</button>
-            <button id="execution-complete-sprint-btn" class="ghost" type="button">Complete active sprint</button>
-          </div>
-          <ul id="execution-sprint-list" class="list"></ul>
-
-
-          <h3>Quality gate board</h3>
-          <p id="quality-gate-summary" class="muted"></p>
-          <div class="inline-form">
-            <select id="quality-gate-suite">
-              <option value="core_regression">core regression</option>
-              <option value="safety_resilience">safety resilience</option>
-              <option value="release_readiness">release readiness</option>
-            </select>
-            <button id="quality-gate-run-btn" type="button">Run selected suite</button>
-            <button id="quality-gate-run-all-btn" class="ghost" type="button">Run all suites</button>
-          </div>
-          <ul id="quality-gate-list" class="list"></ul>
-          <h3>Blocker board</h3>
-          <form id="execution-blocker-form" class="inline-form">
-            <input id="execution-blocker-title" maxlength="120" placeholder="Blocker title" required />
-            <select id="execution-blocker-severity">
-              <option value="low">low</option>
-              <option value="medium">medium</option>
-              <option value="high">high</option>
-            </select>
-            <input id="execution-blocker-owner" maxlength="60" placeholder="Owner" />
-            <button type="submit">Log blocker</button>
-          </form>
-          <ul id="execution-blocker-list" class="list"></ul>
         </section>
       </section>
     </main>
