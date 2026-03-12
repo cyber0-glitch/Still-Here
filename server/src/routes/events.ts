@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { authenticate } from '../middleware/auth';
 
@@ -83,11 +83,12 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {
+    const where: Prisma.GroupEventWhereInput = {
       status,
       organizer: {
         isMemorial: false,
         isActive: true,
+        deletedAt: null,
       },
     };
 
@@ -325,20 +326,20 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
 
     // Notify all attendees (excluding the organizer)
-    const attendeeNotifications = existing.attendees
+    const attendeeIds = existing.attendees
       .filter((a) => a.userId !== userId)
-      .map((a) =>
-        prisma.notification.create({
-          data: {
-            userId: a.userId,
-            type: 'event_cancelled',
-            title: 'Event cancelled',
-            body: `The event "${existing.title}" has been cancelled.`,
-          },
-        })
-      );
+      .map((a) => a.userId);
 
-    await Promise.all(attendeeNotifications);
+    if (attendeeIds.length > 0) {
+      await prisma.notification.createMany({
+        data: attendeeIds.map((attendeeUserId) => ({
+          userId: attendeeUserId,
+          type: 'event_cancelled',
+          title: 'Event cancelled',
+          body: `The event "${existing.title}" has been cancelled.`,
+        })),
+      });
+    }
 
     return res.status(200).json({ message: 'Event cancelled' });
   } catch (error) {
@@ -362,60 +363,65 @@ router.post('/:id/attend', async (req: Request, res: Response) => {
     const userId = req.user!.userId;
     const eventId = req.params.id as string;
 
-    // Verify event exists
-    const event = await prisma.groupEvent.findUnique({
-      where: { id: eventId },
-      include: {
-        _count: {
-          select: { attendees: true },
-        },
-      },
-    });
-
-    if (!event) {
-      return res.status(404).json({ error: 'Event not found' });
-    }
-
-    // Check if already attending
-    const existingAttendee = await prisma.groupEventAttendee.findUnique({
-      where: {
-        eventId_userId: {
-          eventId,
-          userId,
-        },
-      },
-    });
-
-    if (existingAttendee) {
-      return res.status(409).json({ error: 'You have already RSVP\'d to this event' });
-    }
-
-    // Check capacity if maxAttendees is set
-    if (event.maxAttendees && event._count.attendees >= event.maxAttendees) {
-      return res.status(400).json({ error: 'Event is at full capacity' });
-    }
-
-    const attendee = await prisma.groupEventAttendee.create({
-      data: {
-        eventId,
-        userId,
-        status: parsed.data.status,
-      },
-    });
-
-    // Notify the organizer
-    if (event.organizerId && event.organizerId !== userId) {
-      await prisma.notification.create({
-        data: {
-          userId: event.organizerId,
-          type: 'event_rsvp',
-          title: 'New RSVP for your event',
-          body: `Someone RSVP'd to your event: "${event.title}"`,
+    // Use a transaction to prevent race condition on capacity check
+    const result: { attendee?: any; error?: string; status?: number } = await prisma.$transaction(async (tx) => {
+      const event = await tx.groupEvent.findUnique({
+        where: { id: eventId },
+        include: {
+          _count: {
+            select: { attendees: true },
+          },
         },
       });
+
+      if (!event) {
+        return { error: 'Event not found', status: 404 };
+      }
+
+      // Check if already attending
+      const existingAttendee = await tx.groupEventAttendee.findUnique({
+        where: {
+          eventId_userId: { eventId, userId },
+        },
+      });
+
+      if (existingAttendee) {
+        return { error: 'You have already RSVP\'d to this event', status: 409 };
+      }
+
+      // Check capacity if maxAttendees is set
+      if (event.maxAttendees && event._count.attendees >= event.maxAttendees) {
+        return { error: 'Event is at full capacity', status: 400 };
+      }
+
+      const attendee = await tx.groupEventAttendee.create({
+        data: {
+          eventId,
+          userId,
+          status: parsed.data.status,
+        },
+      });
+
+      // Notify the organizer
+      if (event.organizerId && event.organizerId !== userId) {
+        await tx.notification.create({
+          data: {
+            userId: event.organizerId,
+            type: 'event_rsvp',
+            title: 'New RSVP for your event',
+            body: `Someone RSVP'd to your event: "${event.title}"`,
+          },
+        });
+      }
+
+      return { attendee };
+    });
+
+    if (result.error) {
+      return res.status(result.status || 400).json({ error: result.error });
     }
 
-    return res.status(201).json({ attendee });
+    return res.status(201).json({ attendee: result.attendee });
   } catch (error) {
     console.error('Attend event error:', error);
     return res.status(500).json({ error: 'Internal server error' });

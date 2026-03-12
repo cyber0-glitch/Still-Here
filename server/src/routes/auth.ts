@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import {
   signAccessToken,
   signRefreshToken,
@@ -11,6 +12,23 @@ import {
 
 const router = Router();
 const prisma = new PrismaClient();
+
+// Rate limiting for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { error: 'Too many attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: { error: 'Too many registration attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const DEFAULT_BLOCKED_PHRASES = [
   'send money',
@@ -58,7 +76,7 @@ const resetPasswordSchema = z.object({
 
 // ── POST /register ──────────────────────────────────────────────────────────
 
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', registerLimiter, async (req: Request, res: Response) => {
   try {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -131,7 +149,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
 // ── POST /login ─────────────────────────────────────────────────────────────
 
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', authLimiter, async (req: Request, res: Response) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -145,8 +163,12 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // Find user
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
+    if (!user || user.deletedAt) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ error: 'Your account has been suspended' });
     }
 
     // Verify password
@@ -238,7 +260,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
 // ── POST /forgot-password ───────────────────────────────────────────────────
 
-router.post('/forgot-password', async (req: Request, res: Response) => {
+router.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {
   try {
     const parsed = forgotPasswordSchema.safeParse(req.body);
     if (!parsed.success) {

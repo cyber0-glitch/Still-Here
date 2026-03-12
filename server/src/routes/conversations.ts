@@ -13,7 +13,7 @@ router.use(authenticate);
 // ── Validation Schemas ──────────────────────────────────────────────────────
 
 const sendMessageSchema = z.object({
-  content: z.string().min(1, 'Message content is required'),
+  content: z.string().min(1, 'Message content is required').max(5000, 'Message is too long'),
 });
 
 const messagesQuerySchema = z.object({

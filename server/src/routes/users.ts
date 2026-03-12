@@ -24,7 +24,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, _file, cb) => {
     const ext = path.extname(_file.originalname).toLowerCase();
-    cb(null, `${req.user!.userId}-${Date.now()}${ext}`);
+    const rand = Math.random().toString(36).substring(2, 9);
+    cb(null, `${req.user!.userId}-${Date.now()}-${rand}${ext}`);
   },
 });
 

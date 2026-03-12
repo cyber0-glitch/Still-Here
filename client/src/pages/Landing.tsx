@@ -60,8 +60,8 @@ export default function Landing() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {exampleMoments.map((m) => (
-            <div key={m.author} className="card text-center">
+          {exampleMoments.map((m, i) => (
+            <div key={i} className="card text-center">
               <p className="text-lg italic text-brand-text mb-4">"{m.text}"</p>
               <p className="text-brand-amber font-medium">
                 {m.author}, <span className="text-brand-muted">{m.city}</span>

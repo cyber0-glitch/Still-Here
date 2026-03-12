@@ -25,7 +25,7 @@ export default function NewEvent() {
   const [error, setError] = useState('');
 
   // Not verified -- show gate
-  if (user?.verificationStatus !== 'verified') {
+  if (!user || !['verified', 'community_verified'].includes(user.verificationStatus)) {
     return (
       <div className="space-y-6">
         <Link
@@ -63,10 +63,20 @@ export default function NewEvent() {
       return;
     }
 
+    const eventDateTime = new Date(`${eventDate}T${eventTime}`);
+    if (isNaN(eventDateTime.getTime())) {
+      setError('Invalid date or time');
+      return;
+    }
+    if (eventDateTime <= new Date()) {
+      setError('Event date must be in the future');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      const eventDateTime = new Date(`${eventDate}T${eventTime}`).toISOString();
+      const eventDateTimeISO = eventDateTime.toISOString();
 
       await api('/events', {
         method: 'POST',
@@ -74,7 +84,7 @@ export default function NewEvent() {
           title: title.trim(),
           description: description.trim() || undefined,
           category,
-          eventDate: eventDateTime,
+          eventDate: eventDateTimeISO,
           locationName: locationName.trim() || undefined,
           locationAddress: locationAddress.trim() || undefined,
           isVirtual,

@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
+import { PrismaClient } from '@prisma/client';
 import path from 'path';
 
 import authRoutes from './routes/auth';
@@ -16,6 +17,8 @@ import reportRoutes from './routes/reports';
 import verifyRoutes from './routes/verify';
 import adminRoutes from './routes/admin';
 import { verifyAccessToken } from './utils/jwt';
+
+const prisma = new PrismaClient();
 
 const app = express();
 const httpServer = createServer(app);
@@ -69,15 +72,23 @@ io.on('connection', (socket) => {
   const userId = (socket as any).userId;
   socket.join(`user:${userId}`);
 
-  socket.on('join_conversation', (conversationId: string) => {
-    socket.join(`conversation:${conversationId}`);
+  socket.on('join_conversation', async (conversationId: string) => {
+    // Verify user is a participant before allowing them to join
+    const participant = await prisma.conversationParticipant.findUnique({
+      where: { conversationId_userId: { conversationId, userId } },
+    });
+    if (participant) {
+      socket.join(`conversation:${conversationId}`);
+    }
   });
 
   socket.on('leave_conversation', (conversationId: string) => {
     socket.leave(`conversation:${conversationId}`);
   });
 
-  socket.on('send_message', (data: { conversationId: string; content: string }) => {
+  socket.on('send_message', async (data: { conversationId: string; content: string }) => {
+    // Only emit if sender is in the conversation room (verified on join)
+    if (!socket.rooms.has(`conversation:${data.conversationId}`)) return;
     io.to(`conversation:${data.conversationId}`).emit('new_message', {
       conversationId: data.conversationId,
       senderId: userId,
@@ -87,6 +98,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('typing', (data: { conversationId: string }) => {
+    if (!socket.rooms.has(`conversation:${data.conversationId}`)) return;
     socket.to(`conversation:${data.conversationId}`).emit('user_typing', {
       conversationId: data.conversationId,
       userId,

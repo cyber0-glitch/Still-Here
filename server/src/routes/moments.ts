@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { checkForScam } from '../utils/scamDetection';
 import { authenticate } from '../middleware/auth';
@@ -37,7 +37,7 @@ const updateMomentSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
   category: z.enum(VALID_CATEGORIES).optional(),
-  status: z.string().max(20).optional(),
+  status: z.enum(['open', 'matched', 'completed', 'expired']).optional(),
   locationType: z.string().max(20).optional(),
   locationName: z.string().max(200).optional(),
   locationLat: z.number().min(-90).max(90).optional(),
@@ -99,7 +99,7 @@ router.get('/', async (req: Request, res: Response) => {
     );
 
     // Build where clause
-    const where: any = {
+    const where: Prisma.MomentRequestWhereInput = {
       status,
       userId: {
         notIn: [userId, ...blockedUserIds],
@@ -107,6 +107,7 @@ router.get('/', async (req: Request, res: Response) => {
       user: {
         isMemorial: false,
         isActive: true,
+        deletedAt: null,
       },
     };
 

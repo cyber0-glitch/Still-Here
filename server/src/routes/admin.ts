@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { invalidatePhrasesCache } from '../utils/scamDetection';
@@ -258,7 +258,7 @@ router.get('/users', async (req: Request, res: Response) => {
     const { search, page, limit } = parsed.data;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.UserWhereInput = {};
 
     if (search) {
       where.OR = [

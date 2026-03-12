@@ -137,8 +137,8 @@ function ReportsTab() {
 
   async function fetchReports() {
     try {
-      const data = await api<AdminReport[]>('/admin/reports');
-      setReports(data);
+      const data = await api<{ reports: AdminReport[] }>('/admin/reports');
+      setReports(data.reports);
     } catch {
       // silently fail
     } finally {
@@ -149,7 +149,11 @@ function ReportsTab() {
   async function handleAction(reportId: string, action: 'review' | 'dismiss') {
     setActionMsg('');
     try {
-      await api(`/admin/reports/${reportId}/${action}`, { method: 'POST' });
+      const status = action === 'review' ? 'reviewed' : 'dismissed';
+      await api(`/admin/reports/${reportId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
       setActionMsg(`Report ${action === 'review' ? 'marked as reviewed' : 'dismissed'}.`);
       fetchReports();
     } catch (err: any) {
@@ -231,8 +235,8 @@ function UsersTab() {
     setLoading(true);
     try {
       const params = query ? `?search=${encodeURIComponent(query)}` : '';
-      const data = await api<AdminUser[]>(`/admin/users${params}`);
-      setUsers(data);
+      const data = await api<{ users: AdminUser[] }>(`/admin/users${params}`);
+      setUsers(data.users);
     } catch {
       // silently fail
     } finally {
@@ -248,8 +252,10 @@ function UsersTab() {
   async function handleToggleActive(userId: string, isActive: boolean) {
     setActionMsg('');
     try {
-      const action = isActive ? 'suspend' : 'activate';
-      await api(`/admin/users/${userId}/${action}`, { method: 'POST' });
+      await api(`/admin/users/${userId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive: !isActive }),
+      });
       setActionMsg(`User ${isActive ? 'suspended' : 'activated'}.`);
       fetchUsers(search);
     } catch (err: any) {
@@ -343,8 +349,8 @@ function CodesTab() {
 
   async function fetchCodes() {
     try {
-      const data = await api<CommunityCode[]>('/admin/community-codes');
-      setCodes(data);
+      const data = await api<{ codes: CommunityCode[] }>('/admin/community-codes');
+      setCodes(data.codes);
     } catch {
       // silently fail
     } finally {
@@ -361,9 +367,9 @@ function CodesTab() {
       await api('/admin/community-codes', {
         method: 'POST',
         body: JSON.stringify({
+          organizationName: newPartnerId.trim() || newCode.trim(),
           code: newCode.trim(),
           maxUses: Number(newMaxUses) || 100,
-          partnerId: newPartnerId.trim() || undefined,
         }),
       });
       setActionMsg('Community code created.');
@@ -381,7 +387,7 @@ function CodesTab() {
   async function handleDeactivate(codeId: string) {
     setActionMsg('');
     try {
-      await api(`/admin/community-codes/${codeId}/deactivate`, { method: 'POST' });
+      await api(`/admin/community-codes/${codeId}`, { method: 'PATCH' });
       setActionMsg('Code deactivated.');
       fetchCodes();
     } catch (err: any) {
@@ -489,8 +495,8 @@ function PartnersTab() {
 
   async function fetchPartners() {
     try {
-      const data = await api<Partner[]>('/admin/partners');
-      setPartners(data);
+      const data = await api<{ partners: Partner[] }>('/admin/partners');
+      setPartners(data.partners);
     } catch {
       // silently fail
     } finally {
@@ -507,7 +513,7 @@ function PartnersTab() {
       await api('/admin/partners', {
         method: 'POST',
         body: JSON.stringify({
-          name: newName.trim(),
+          businessName: newName.trim(),
           contactEmail: newEmail.trim(),
         }),
       });
@@ -606,8 +612,8 @@ function PhrasesTab() {
 
   async function fetchPhrases() {
     try {
-      const data = await api<BlockedPhrase[]>('/admin/blocked-phrases');
-      setPhrases(data);
+      const data = await api<{ phrases: BlockedPhrase[] }>('/admin/blocked-phrases');
+      setPhrases(data.phrases);
     } catch {
       // silently fail
     } finally {

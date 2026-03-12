@@ -1,7 +1,15 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret';
+function requireEnvSecret(name: string, fallback: string): string {
+  const value = process.env[name];
+  if (!value && process.env.NODE_ENV === 'production') {
+    throw new Error(`${name} environment variable is required in production`);
+  }
+  return value || fallback;
+}
+
+const JWT_SECRET = requireEnvSecret('JWT_SECRET', 'dev-secret');
+const JWT_REFRESH_SECRET = requireEnvSecret('JWT_REFRESH_SECRET', 'dev-refresh-secret');
 
 export interface TokenPayload {
   userId: string;

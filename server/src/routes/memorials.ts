@@ -13,7 +13,7 @@ router.use(authenticate);
 // ── Validation Schemas ──────────────────────────────────────────────────────
 
 const leaveMemorySchema = z.object({
-  content: z.string().min(1, 'Memory content is required'),
+  content: z.string().min(1, 'Memory content is required').max(5000, 'Memory is too long'),
   imageUrl: z.string().url().optional(),
 });
 

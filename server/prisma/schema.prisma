@@ -121,6 +121,9 @@ model MomentRequest {
   responses    MomentResponse[]
   conversation Conversation?    @relation()
 
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
   @@map("moment_requests")
 }
 
@@ -155,6 +158,7 @@ model Conversation {
   participants ConversationParticipant[]
   messages     Message[]
 
+  @@index([lastMessageAt])
   @@map("conversations")
 }
 
@@ -189,6 +193,9 @@ model Message {
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User?        @relation(fields: [senderId], references: [id], onDelete: SetNull)
 
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
   @@map("messages")
 }
 
@@ -262,12 +269,15 @@ model Report {
   reporter     User?  @relation("Reporter", fields: [reporterId], references: [id], onDelete: SetNull)
   reportedUser User   @relation("Reported", fields: [reportedUserId], references: [id], onDelete: Cascade)
 
+  @@index([status])
+  @@index([reportedUserId])
+  @@index([createdAt])
   @@map("reports")
 }
 
 model BlockedPhrase {
   id       String  @id @default(uuid()) @db.Uuid
-  phrase   String  @db.VarChar(200)
+  phrase   String  @unique @db.VarChar(200)
   category String? @db.VarChar(50)
   isActive Boolean @default(true) @map("is_active")
 
@@ -377,5 +387,7 @@ model Notification {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
+  @@index([userId])
+  @@index([read])
   @@map("notifications")
 }

@@ -95,10 +95,10 @@ router.post('/:userId/block', async (req: Request, res: Response) => {
     });
 
     if (existing) {
-      // Update the existing connection to blocked
+      // Update the existing connection to blocked (preserve original user IDs)
       await prisma.connection.update({
         where: { id: existing.id },
-        data: { status: 'blocked', userAId: currentUserId, userBId: targetUserId },
+        data: { status: 'blocked' },
       });
     } else {
       // Create a new blocked connection
@@ -128,8 +128,10 @@ router.delete('/:userId/block', async (req: Request, res: Response) => {
 
     const blocked = await prisma.connection.findFirst({
       where: {
-        userAId: currentUserId,
-        userBId: targetUserId,
+        OR: [
+          { userAId: currentUserId, userBId: targetUserId },
+          { userAId: targetUserId, userBId: currentUserId },
+        ],
         status: 'blocked',
       },
     });
