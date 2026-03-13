@@ -34,8 +34,18 @@ export default function Messages() {
   useEffect(() => {
     async function fetchConversations() {
       try {
-        const data = await api<Conversation[]>('/conversations');
-        setConversations(data);
+        const data = await api<{ conversations: any[] }>('/conversations');
+        // Transform server shape: server returns `participants` array, client expects `otherParticipant`
+        const transformed: Conversation[] = data.conversations.map((conv) => ({
+          id: conv.id,
+          lastMessageAt: conv.lastMessageAt,
+          memorialLocked: conv.memorialLocked,
+          originMomentTitle: conv.originMomentTitle,
+          otherParticipant: conv.participants?.[0] || null,
+          lastMessage: conv.lastMessage?.content || null,
+          unreadCount: conv.unreadCount ?? 0,
+        }));
+        setConversations(transformed);
       } catch (err: any) {
         setError(err.message || 'Failed to load conversations');
       } finally {

@@ -91,25 +91,30 @@ router.post('/community-code', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'This community code has reached its maximum number of uses' });
     }
 
-    // Update user verification status
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        verificationStatus: 'community_verified',
-        verifiedAt: new Date(),
-        communityCodeUsed: communityCode.organizationName,
-      },
+    // Atomically increment code usage and update user in a transaction
+    const orgName = communityCode.organizationName;
+    await prisma.$transaction(async (tx) => {
+      // Increment and re-check within transaction to prevent race condition
+      const updated = await tx.communityCode.update({
+        where: { id: communityCode.id },
+        data: { currentUses: { increment: 1 } },
+      });
+
+      if (updated.maxUses !== null && updated.currentUses > updated.maxUses) {
+        throw new Error('Community code has reached its maximum number of uses');
+      }
+
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          verificationStatus: 'community_verified',
+          verifiedAt: new Date(),
+          communityCodeUsed: orgName,
+        },
+      });
     });
 
-    // Increment the code's current uses
-    await prisma.communityCode.update({
-      where: { id: communityCode.id },
-      data: {
-        currentUses: { increment: 1 },
-      },
-    });
-
-    return res.status(200).json({ organizationName: communityCode.organizationName });
+    return res.status(200).json({ organizationName: orgName });
   } catch (error) {
     console.error('POST /verify/community-code error:', error);
     return res.status(500).json({ error: 'Internal server error' });

@@ -63,8 +63,8 @@ export default function Profile() {
   useEffect(() => {
     async function fetchMoments() {
       try {
-        const data = await api<MomentRequest[]>('/moments/mine');
-        setMoments(data);
+        const data = await api<{ moments: MomentRequest[] }>('/moments/mine');
+        setMoments(data.moments);
       } catch {
         // silently fail
       } finally {

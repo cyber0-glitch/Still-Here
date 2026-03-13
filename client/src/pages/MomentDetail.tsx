@@ -49,8 +49,8 @@ export default function MomentDetail() {
     setLoading(true);
     setError('');
     try {
-      const data = await api<MomentRequest>(`/moments/${id}`);
-      setMoment(data);
+      const data = await api<{ moment: MomentRequest }>(`/moments/${id}`);
+      setMoment(data.moment);
     } catch (err: any) {
       setError(err.message || 'Failed to load moment.');
     } finally {
@@ -61,8 +61,8 @@ export default function MomentDetail() {
   const fetchResponses = useCallback(async () => {
     if (!id || !isOwner) return;
     try {
-      const data = await api<MomentResponse[]>(`/moments/${id}/responses`);
-      setResponses(data);
+      const data = await api<{ responses: MomentResponse[] }>(`/moments/${id}/responses`);
+      setResponses(data.responses);
     } catch {
       // Silently fail for responses
     }

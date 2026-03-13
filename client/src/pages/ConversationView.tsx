@@ -46,12 +46,32 @@ export default function ConversationView() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [messagesData, convData] = await Promise.all([
-          api<Message[]>(`/conversations/${id}/messages`),
-          api<Conversation>(`/conversations/${id}`).catch(() => null),
+        const [messagesRes, convRes] = await Promise.all([
+          api<{ messages: Message[]; pagination: any }>(`/conversations/${id}/messages`),
+          api<any>(`/conversations/${id}`).catch(() => null),
         ]);
-        setMessages(messagesData);
-        if (convData) setConversation(convData);
+        setMessages(messagesRes.messages);
+        if (convRes) {
+          // Transform server shape: participants array → otherParticipant
+          const other = convRes.participants?.find(
+            (p: any) => p.userId !== user?.id
+          );
+          setConversation({
+            id: convRes.id,
+            lastMessageAt: convRes.lastMessageAt,
+            memorialLocked: convRes.memorialLocked,
+            originMomentTitle: convRes.originMomentTitle,
+            otherParticipant: other
+              ? {
+                  id: other.userId,
+                  displayName: other.displayName,
+                  avatarUrl: other.avatarUrl,
+                  verificationStatus: other.verificationStatus,
+                  isMemorial: other.isMemorial,
+                }
+              : undefined,
+          });
+        }
 
         // Mark as read
         api(`/conversations/${id}/read`, { method: 'PATCH' }).catch(() => {});
@@ -75,11 +95,11 @@ export default function ConversationView() {
 
     setSending(true);
     try {
-      const msg = await api<Message>(`/conversations/${id}/messages`, {
+      const res = await api<{ message: Message }>(`/conversations/${id}/messages`, {
         method: 'POST',
         body: JSON.stringify({ content }),
       });
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [...prev, res.message]);
       setNewMessage('');
     } catch (err: any) {
       setError(err.message || 'Failed to send message');

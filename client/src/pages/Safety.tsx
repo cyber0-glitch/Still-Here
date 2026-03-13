@@ -4,11 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 
 const REPORT_REASONS = [
-  { value: 'harassment', label: 'Harassment' },
-  { value: 'spam', label: 'Spam' },
-  { value: 'inappropriate', label: 'Inappropriate content' },
-  { value: 'impersonation', label: 'Impersonation' },
   { value: 'scam', label: 'Scam or fraud' },
+  { value: 'money_request', label: 'Requesting money' },
+  { value: 'harassment', label: 'Harassment' },
+  { value: 'fake_profile', label: 'Fake profile' },
+  { value: 'exploitation', label: 'Exploitation' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -30,7 +30,7 @@ export default function Safety() {
 
   // Report form
   const [reportUserId, setReportUserId] = useState('');
-  const [reportReason, setReportReason] = useState('harassment');
+  const [reportReason, setReportReason] = useState('scam');
   const [reportDetails, setReportDetails] = useState('');
   const [submittingReport, setSubmittingReport] = useState(false);
   const [reportMsg, setReportMsg] = useState('');
@@ -47,8 +47,8 @@ export default function Safety() {
   useEffect(() => {
     async function fetchReports() {
       try {
-        const data = await api<Report[]>('/reports/mine');
-        setReports(data);
+        const data = await api<{ reports: Report[] }>('/reports/mine');
+        setReports(data.reports);
       } catch {
         // silently fail
       } finally {
@@ -76,8 +76,8 @@ export default function Safety() {
       setReportUserId('');
       setReportDetails('');
       // Refresh reports list
-      const updated = await api<Report[]>('/reports/mine');
-      setReports(updated);
+      const updated = await api<{ reports: Report[] }>('/reports/mine');
+      setReports(updated.reports);
     } catch (err: any) {
       setReportMsg(err.message || 'Failed to submit report');
     } finally {

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 
 const CONTACT_PREFERENCES = [
+  { value: 'both', label: 'Both (messages & moments)' },
   { value: 'anyone', label: 'Anyone' },
   { value: 'connections', label: 'Connections only' },
   { value: 'nobody', label: 'Nobody' },

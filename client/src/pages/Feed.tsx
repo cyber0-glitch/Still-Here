@@ -49,8 +49,8 @@ export default function Feed() {
       if (energyLevel) params.set('energyLevel', energyLevel);
       if (locationType) params.set('locationType', locationType);
       const query = params.toString();
-      const data = await api<MomentRequest[]>(`/moments${query ? `?${query}` : ''}`);
-      setMoments(data);
+      const data = await api<{ moments: MomentRequest[]; pagination: any }>(`/moments${query ? `?${query}` : ''}`);
+      setMoments(data.moments);
     } catch (err: any) {
       setError(err.message || 'Failed to load moments.');
     } finally {

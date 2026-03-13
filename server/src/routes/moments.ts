@@ -520,11 +520,16 @@ router.patch('/:id/responses/:respId', async (req: Request, res: Response) => {
         },
       });
 
-      // Create a connection record between the two users
-      await prisma.connection.create({
-        data: {
-          userAId: moment.userId,
-          userBId: existingResponse.responderId,
+      // Create a connection record between the two users (ignore if already connected)
+      const [sortedA, sortedB] = [moment.userId, existingResponse.responderId].sort();
+      await prisma.connection.upsert({
+        where: {
+          userAId_userBId: { userAId: sortedA, userBId: sortedB },
+        },
+        update: {},
+        create: {
+          userAId: sortedA,
+          userBId: sortedB,
           status: 'connected',
           connectedVia: 'moment',
         },
